@@ -1,6 +1,7 @@
 import json
 import os
 import pandas as pd
+import qdrant_client
 import requests
 import streamlit as st
 import torch
