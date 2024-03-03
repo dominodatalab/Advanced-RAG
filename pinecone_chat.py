@@ -109,6 +109,10 @@ def build_system_prompt(user_input):
     
     urls, contexts = get_relevant_docs(user_input)
     
+    actual_num_matches = len(relevant_docs["matches"])
+    urls = set([relevant_docs["matches"][i]["metadata"]["source"] for i in range(actual_num_matches)])
+    contexts = [relevant_docs["matches"][i]["metadata"]["text"] for i in range(actual_num_matches)]
+    
     # Create prompt
     template = """ You are a virtual assistant for Rakuten and your task is to answer questions related to Rakuten which includes general information about Rakuten.
 
