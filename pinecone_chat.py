@@ -110,7 +110,7 @@ def build_system_prompt(user_input):
     # Retrieve context
     relevant_docs = get_relevant_docs(user_input)
     actual_num_matches = len(relevant_docs["matches"])
-    url_links = set([relevant_docs["matches"][i]["metadata"]["url"] for i in range(actual_num_matches)])
+    url_links = set([relevant_docs["matches"][i]["metadata"]["source"] for i in range(actual_num_matches)])
     context = [relevant_docs["matches"][i]["metadata"]["text"] for i in range(actual_num_matches)]
 
     # Create prompt
