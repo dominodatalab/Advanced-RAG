@@ -107,7 +107,7 @@ def get_relevant_docs(user_input):
 
 def build_system_prompt(user_input):
     
-    urls, contexts = get_relevant_docs(user_input)
+    relevant_docs = get_relevant_docs(user_input)
     
     actual_num_matches = len(relevant_docs["matches"])
     urls = set([relevant_docs["matches"][i]["metadata"]["source"] for i in range(actual_num_matches)])
