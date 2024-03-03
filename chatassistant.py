@@ -37,6 +37,7 @@ embeddings = HuggingFaceBgeEmbeddings(model_name="BAAI/bge-small-en",
                                      )
 
 qdrant_url = "https://59f8f159-fb60-44e8-bfc4-9f35c77ca8d4.us-east4-0.gcp.cloud.qdrant.io:6333" 
+qdrant_key = os.environ.get("QDRANT_KEY")
 
 client = qdrant_client.QdrantClient(
     qdrant_url,
