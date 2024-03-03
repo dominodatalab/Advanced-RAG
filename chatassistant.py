@@ -60,7 +60,7 @@ if "messages" not in st.session_state.keys():
 # Initialize or re-initialize conversation chain
 if "conversation" not in st.session_state.keys() or len(st.session_state.messages) <= 1:
     rag_llm = ChatOpenAI(temperature=0, 
-                            model=''gpt-3.5-turbo'',
+                            model='gpt-3.5-turbo',
                             openai_api_key=os.environ.get("OPENAI_API_KEY"))
     st.session_state.conversation = ConversationChain(
         llm=rag_llm,
