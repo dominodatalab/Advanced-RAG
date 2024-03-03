@@ -8,4 +8,4 @@ echo "port = 8888" >> ~/.streamlit/config.toml
 echo "enableCORS = false" >> ~/.streamlit/config.toml
 echo "enableXsrfProtection = false" >> ~/.streamlit/config.toml
  
-streamlit run chatAssistant.py
+streamlit run chatassistant.py
