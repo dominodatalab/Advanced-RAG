@@ -22,7 +22,7 @@ def build_sidebar():
         ]
  
     # App sidebar
-    st.image("/mnt/assets/r-chatbot.png", width=50)
+    st.image("./assets/r-chatbot.png", width=50)
     st.write(
         "<h1>Hi, I'm <font color='#ffcdc2'>R-Bot</font> - your personal chat assistant</h1>",
         unsafe_allow_html=True,
