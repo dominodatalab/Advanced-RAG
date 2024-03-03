@@ -180,9 +180,10 @@ def generate_response(prompt):
     if "unsafe" in get_moderation_result(prompt,"User"):
         return "I am sorry, please ask another question"
     prompt = anonymize(prompt)
+    st.write(prompt)
     response_generated = queryAIModel(prompt)
     
-    if "unsafe" in get_moderation_result(prompt,"Agent"):
+    if "unsafe" in get_moderation_result(response_generated,"Agent"):
         return "I am sorry, I cannot answer this question"
     else:
         return response_generated
