@@ -3,12 +3,13 @@ import random
  
  
 def build_sidebar():
+    
     popular_questions = [
-        "What is the UNSDG goal 1?",
-        "What % of countries would have halved poverty by 2030?",
-        "How is India tracking towards gender equality?",
-        "From where does UNSDG source its data?",
-        "What effect has covid-19 had on poverty?",
+            "How can I track my order status on Rakuten?",
+            "What is Rakuten's return policy for electronics?",
+            "Can I change the shipping address after placing my order?",
+            "What payment methods are accepted on Rakuten?",
+            "Is it possible to cancel my order after it has been shipped?",
     ]
  
     def insert_as_users_prompt(**kwargs):
