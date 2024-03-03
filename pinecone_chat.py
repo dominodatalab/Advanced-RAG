@@ -36,7 +36,7 @@ pinecone.init(
     openapi_config=conf
 )
 
-index = pinecone.Index(index_name)
+index = pinecone.Index("rakuten")
 
 # Create embeddings to embed queries
 
