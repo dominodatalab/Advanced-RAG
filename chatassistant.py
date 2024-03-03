@@ -29,7 +29,7 @@ NUM_TEXT_MATCHES = 3
 SIMILARITY_THRESHOLD = 0.83
 
 
-command = "python -m spacy download en_core_web_lg"
+command = "sudo python -m spacy download en_core_web_lg"
 process = subprocess.run(command, shell=True, check=True)
  
 # Initialize embedding model
