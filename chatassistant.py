@@ -133,7 +133,7 @@ def get_relevant_docs(user_input):
  
 def build_system_prompt(user_input):
     
-    urls, titles, contexts = get_relevant_docs(user_input)
+    urls, contexts = get_relevant_docs(user_input)
     
     # Create prompt
     template = """ You are a virtual assistant for Rakuten and your task is to answer questions related to Rakuten which includes general information about Rakuten.
@@ -180,7 +180,6 @@ def generate_response(prompt):
     if "unsafe" in get_moderation_result(prompt,"User"):
         return "I am sorry, please ask another question"
     prompt = anonymize(prompt)
-    st.write(prompt)
     response_generated = queryAIModel(prompt)
     
     if "unsafe" in get_moderation_result(response_generated,"Agent"):
