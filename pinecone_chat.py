@@ -43,7 +43,7 @@ index = pinecone.Index("rakuten")
 model_kwargs = {'device': 'cpu'}
 encode_kwargs = {'normalize_embeddings': True}
 embedding_model_name = "BAAI/bge-small-en"
-os.environ['SENTENCE_TRANSFORMERS_HOME'] = '/mnt/code/model_cache/'
+os.environ['SENTENCE_TRANSFORMERS_HOME'] = './model_cache/'
 embeddings = HuggingFaceBgeEmbeddings(model_name=embedding_model_name,
                                       model_kwargs=model_kwargs,
                                       encode_kwargs=encode_kwargs
