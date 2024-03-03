@@ -1,7 +1,7 @@
 import streamlit as st
 import random
  
- 
+    
 def build_sidebar():
     
     popular_questions = [
