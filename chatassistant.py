@@ -35,9 +35,18 @@ embeddings = HuggingFaceBgeEmbeddings(model_name="BAAI/bge-small-en",
                                       model_kwargs=model_kwargs,
                                       encode_kwargs=encode_kwargs
                                      )
+
 qdrant_url = "https://59f8f159-fb60-44e8-bfc4-9f35c77ca8d4.us-east4-0.gcp.cloud.qdrant.io:6333" 
-qdrant_client = QdrantClient(host=qdrant_url,
-                             api_key=os.environ.get("QDRANT_KEY"))
+
+client = qdrant_client.QdrantClient(
+    qdrant_url,
+    api_key=qdrant_key,
+    )
+
+doc_store = Qdrant(
+    client=client, collection_name="rakuten", 
+    embeddings=embeddings,
+    )
 
 llama_guard_api_url = "https://se-demo.domino.tech:443/models/65e3eb9fd69e0f578609eaf8/latest/model"
 llama_guard_api_key = "Gy76T7FJvKn7QFMF4m1PjapUVtCrezCjJjrAUdslUICcDNxuFlORtgQhdxedLSxt"
@@ -108,19 +117,12 @@ def get_moderation_result(query,role="Agent"):
 # Get relevant docs through vector DB
 def get_relevant_docs(user_input):
  
-    embedded_query = embeddings.embed_query(user_input)
+    relevant_docs = doc_store.similarity_search_with_score(user_input, k=3)
+    urls = [result[0].metadata['source'] for result in relevant_docs if result[1] > SIMILARITY_THRESHOLD]
+    contexts = [result[0].page_content for result in relevant_docs if result[1] > SIMILARITY_THRESHOLD]
  
-    relevant_docs = qdrant_client.search(
-            collection_name="rakuten",
-            query_vector=embedded_query,
-            limit=NUM_TEXT_MATCHES,
-    )
- 
-    urls = [result.payload['metadata']['url'] for result in relevant_docs if result.score > SIMILARITY_THRESHOLD]
-    titles = [result.payload['metadata']['Report title'] for result in relevant_docs if result.score > SIMILARITY_THRESHOLD]
-    contexts = [result.payload['page_content'] for result in relevant_docs if result.score > SIMILARITY_THRESHOLD]
- 
-    return urls, titles, contexts
+    return urls, contexts
+
  
 def build_system_prompt(user_input):
     
