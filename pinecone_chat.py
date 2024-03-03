@@ -54,7 +54,7 @@ st.set_page_config(page_title="ChatAssist", layout="wide")
 
 # App sidebar
 with st.sidebar:
-    domino_docs_version, doc_category = build_sidebar()
+    build_sidebar()
 
 # Store LLM generated responses
 if "messages" not in st.session_state.keys():
