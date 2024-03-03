@@ -4,6 +4,7 @@ import pandas as pd
 import qdrant_client
 import requests
 import streamlit as st
+import subprocess
 import torch
  
 import subprocess
@@ -26,6 +27,10 @@ NUM_TEXT_MATCHES = 3
 # Similarity threshold such that queried text with a lower will be discarded 
 # Range [0, 1], larger = more similar for cosine similarity
 SIMILARITY_THRESHOLD = 0.83
+
+
+command = "python -m spacy download en_core_web_lg"
+process = subprocess.run(command, shell=True, check=True)
  
 # Initialize embedding model
 model_kwargs = {'device': 'cpu'}
