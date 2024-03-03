@@ -170,7 +170,12 @@ def queryAIModel(user_input):
  
 # Function for generating LLM response
 def generate_response(prompt):
+    if "unsafe" in get_moderation_result(prompt,"User"):
+        return "I am sorry, please ask another question"
+    prompt = anonymize(prompt)
     response_generated = queryAIModel(prompt)
+    if "unsafe" in get_moderation_result(prompt,"Agent"):
+       return "I am sorry, I cannot answer this question" 
     return response_generated
  
  
