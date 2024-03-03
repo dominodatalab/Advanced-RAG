@@ -24,6 +24,8 @@ NUM_TEXT_MATCHES = 3
 # Range [0, 1], larger = more similar for cosine similarity
 SIMILARITY_THRESHOLD = 0.83
 
+command = "sudo pip install pinecone-client==2.2.4"
+process = subprocess.run(command, shell=True, check=True)
 
 # Initialize Pinecone index
 datasource_name = "Rakuten"
