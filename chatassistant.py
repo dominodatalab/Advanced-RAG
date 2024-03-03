@@ -36,14 +36,13 @@ embeddings = HuggingFaceBgeEmbeddings(model_name="BAAI/bge-small-en",
                                       model_kwargs=model_kwargs,
                                       encode_kwargs=encode_kwargs
                                      )
- 
-qdrant_client = QdrantClient(host="59f8f159-fb60-44e8-bfc4-9f35c77ca8d4.us-east4-0.gcp.cloud.qdrant.io",
-                             api_key="YTyY8NmWHwAXMwMIWHkERLhpKLffi660UJ0gLbhegPF72EzG9igwUQ")
- 
+qdrant_url = "https://59f8f159-fb60-44e8-bfc4-9f35c77ca8d4.us-east4-0.gcp.cloud.qdrant.io:6333" 
+qdrant_client = QdrantClient(host=qdrant_url,
+                             api_key=os.environ.get("QDRANT_KEY"))
  
  
 # App title
-st.set_page_config(page_title="UNSDG ChatAssist", layout="wide")
+st.set_page_config(page_title="Rakuten Chat Assistant", layout="wide")
  
  
 # App sidebar
@@ -59,8 +58,8 @@ if "messages" not in st.session_state.keys():
 # Initialize or re-initialize conversation chain
 if "conversation" not in st.session_state.keys() or len(st.session_state.messages) <= 1:
     rag_llm = ChatOpenAI(temperature=0, 
-                            model='gpt-3.5-turbo-0613',
-                            openai_api_key="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")
+                            model=''gpt-3.5-turbo'',
+                            openai_api_key=os.environ.get("OPENAI_API_KEY"))
     st.session_state.conversation = ConversationChain(
         llm=rag_llm,
         memory=ConversationSummaryMemory(llm=rag_llm),
@@ -73,7 +72,7 @@ for message in st.session_state.messages:
         st.write(message["content"])
  
 # Seek new input prompts from user
-if prompt := st.chat_input("Chat with UNSDG Chat Assist"):
+if prompt := st.chat_input("Chat with Rakuten Chat Assist"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.write(prompt)
@@ -85,7 +84,7 @@ def get_relevant_docs(user_input):
     embedded_query = embeddings.embed_query(user_input)
  
     relevant_docs = qdrant_client.search(
-            collection_name="unsdg",
+            collection_name="rakuten",
             query_vector=embedded_query,
             limit=NUM_TEXT_MATCHES,
     )
@@ -102,17 +101,19 @@ def build_system_prompt(user_input):
     urls, titles, contexts = get_relevant_docs(user_input)
  
     # Create prompt
-    template = """ You are a virtual assistant for UNSDG and your task is to answer questions related to UNSDG which includes general information about UNSDG.
+    template = """ You are a virtual assistant for Rakuten and your task is to answer questions related to Rakuten which includes general information about Rakuten.
+
+                Respond in the style of a polite helpful assistant and do not allude that you have looked up the context.
+
+                Do not hallucinate. If you don't find an answer, you can point user to the official website here: https://www.rakuten.com/help . 
+
+                In your response, include the following url links at the end of your response {url_links} and any other relevant URL links that you refered.
+
+                Also, at the end of your response, ask if your response was helpful". 
+
+                Here is some relevant context: {context}"""
  
-                    Do not hallucinate. If you don't find an answer, you can point user to the official website here: https://sdgs.un.org/goals . 
- 
-                    In your response, include the following url links at the end of your response {url_links} and any other relevant URL links that you refered.
- 
-                    Also, at the end of your response, ask if your response was helpful". 
- 
-                    Here is some relevant context: {context}"""
- 
-    prompt_template = PromptTemplate(
+     prompt_template = PromptTemplate(
         input_variables=["url_links", "context"],
         template=template
     )
