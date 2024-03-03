@@ -10,6 +10,7 @@ import subprocess
 from sidebar import build_sidebar
  
 from langchain.chains import ConversationChain
+from langchain_experimental.data_anonymizer import PresidioReversibleAnonymizer
 from langchain.embeddings import HuggingFaceBgeEmbeddings
 from langchain_openai import ChatOpenAI
 from langchain.schema import HumanMessage, SystemMessage
@@ -39,6 +40,9 @@ embeddings = HuggingFaceBgeEmbeddings(model_name="BAAI/bge-small-en",
 qdrant_url = "https://59f8f159-fb60-44e8-bfc4-9f35c77ca8d4.us-east4-0.gcp.cloud.qdrant.io:6333" 
 qdrant_client = QdrantClient(host=qdrant_url,
                              api_key=os.environ.get("QDRANT_KEY"))
+
+llama_guard_api_url = "https://se-demo.domino.tech:443/models/65e3eb9fd69e0f578609eaf8/latest/model"
+llama_guard_api_key = "Gy76T7FJvKn7QFMF4m1PjapUVtCrezCjJjrAUdslUICcDNxuFlORtgQhdxedLSxt"
  
  
 # App title
@@ -76,8 +80,34 @@ if prompt := st.chat_input("Chat with Rakuten Chat Assist"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.write(prompt)
+
+
+anonymizer = PresidioReversibleAnonymizer(
+    add_default_faker_operators=False,
+    analyzed_fields=["LOCATION","PHONE_NUMBER","US_SSN", "IBAN_CODE", "CREDIT_CARD", "CRYPTO", "IP_ADDRESS",
+                    "MEDICAL_LICENSE", "URL", "US_BANK_NUMBER", "US_DRIVER_LICENSE", "US_ITIN", "US_PASSPORT"]
+)
+
+
+def anonymize(input_text):
+    if input_text:
+        return anonymizer.anonymize(input_text)
+
+
+def get_moderation_result(query,role="Agent"):
  
- 
+    response = requests.post(llama_guard_api_url,
+        auth=(
+            llama_guard_api_key,
+            llama_guard_api_key
+        ),
+        json={
+            "data": {"query": query, "role": role}
+        }
+    )
+    return response.json()['result']
+
+
 # Get relevant docs through vector DB
 def get_relevant_docs(user_input):
  
