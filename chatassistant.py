@@ -30,7 +30,7 @@ SIMILARITY_THRESHOLD = 0.83
 model_kwargs = {'device': 'cpu'}
 encode_kwargs = {'normalize_embeddings': True}
 embedding_model_name = "BAAI/bge-small-en"
-os.environ['SENTENCE_TRANSFORMERS_HOME'] = '/mnt/model_cache/'
+os.environ['SENTENCE_TRANSFORMERS_HOME'] = './model_cache/'
 embeddings = HuggingFaceBgeEmbeddings(model_name="BAAI/bge-small-en",
                                       model_kwargs=model_kwargs,
                                       encode_kwargs=encode_kwargs
