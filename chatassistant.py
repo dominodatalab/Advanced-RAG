@@ -27,7 +27,6 @@ NUM_TEXT_MATCHES = 3
 # Range [0, 1], larger = more similar for cosine similarity
 SIMILARITY_THRESHOLD = 0.83
  
- 
 # Initialize embedding model
 model_kwargs = {'device': 'cpu'}
 encode_kwargs = {'normalize_embeddings': True}
@@ -44,21 +43,20 @@ qdrant_client = QdrantClient(host=qdrant_url,
 llama_guard_api_url = "https://se-demo.domino.tech:443/models/65e3eb9fd69e0f578609eaf8/latest/model"
 llama_guard_api_key = "Gy76T7FJvKn7QFMF4m1PjapUVtCrezCjJjrAUdslUICcDNxuFlORtgQhdxedLSxt"
  
- 
 # App title
 st.set_page_config(page_title="Rakuten Chat Assistant", layout="wide")
- 
  
 # App sidebar
 with st.sidebar:
     build_sidebar()
- 
+    
 # Store LLM generated responses
 if "messages" not in st.session_state.keys():
     st.session_state.messages = [
         {"role": "assistant", "content": "How can I help you today?"}
     ]
- 
+    
+    
 # Initialize or re-initialize conversation chain
 if "conversation" not in st.session_state.keys() or len(st.session_state.messages) <= 1:
     rag_llm = ChatOpenAI(temperature=0, 
@@ -69,12 +67,12 @@ if "conversation" not in st.session_state.keys() or len(st.session_state.message
         memory=ConversationSummaryMemory(llm=rag_llm),
         verbose=True
     )
- 
+    
 # And display all stored chat messages
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.write(message["content"])
- 
+
 # Seek new input prompts from user
 if prompt := st.chat_input("Chat with Rakuten Chat Assist"):
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -125,11 +123,10 @@ def get_relevant_docs(user_input):
  
     return urls, titles, contexts
  
- 
 def build_system_prompt(user_input):
- 
+    
     urls, titles, contexts = get_relevant_docs(user_input)
- 
+    
     # Create prompt
     template = """ You are a virtual assistant for Rakuten and your task is to answer questions related to Rakuten which includes general information about Rakuten.
 
@@ -143,10 +140,11 @@ def build_system_prompt(user_input):
 
                 Here is some relevant context: {context}"""
  
-     prompt_template = PromptTemplate(
+    prompt_template = PromptTemplate(
         input_variables=["url_links", "context"],
         template=template
     )
+    
     system_prompt = prompt_template.format( url_links=urls, context=contexts)
  
     return system_prompt
@@ -167,16 +165,19 @@ def queryAIModel(user_input):
  
     return output
  
- 
+
 # Function for generating LLM response
 def generate_response(prompt):
+    
     if "unsafe" in get_moderation_result(prompt,"User"):
         return "I am sorry, please ask another question"
     prompt = anonymize(prompt)
     response_generated = queryAIModel(prompt)
+    
     if "unsafe" in get_moderation_result(prompt,"Agent"):
-       return "I am sorry, I cannot answer this question" 
-    return response_generated
+        return "I am sorry, I cannot answer this question"
+    else:
+        return response_generated
  
  
 # Generate a new response if last message is not from assistant
