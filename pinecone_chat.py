@@ -23,7 +23,8 @@ command = "sudo python -m spacy download en_core_web_lg"
 process = subprocess.run(command, shell=True, check=True)
 
 llama_guard_api_url = "https://se-demo.domino.tech:443/models/65e3eb9fd69e0f578609eaf8/latest/model"
-llama_guard_api_key = "Gy76T7FJvKn7QFMF4m1PjapUVtCrezCjJjrAUdslUICcDNxuFlORtgQhdxedLSxt"
+llama_guard_api_key = os.environ.get('llama_guard_api_key')
+
 
 
 anonymizer = PresidioReversibleAnonymizer(
@@ -207,11 +208,11 @@ if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             if "unsafe" in get_moderation_result(prompt,"User"):
-                response =  "I am sorry, please rephrase or ask another question"
+                response =  "I am sorry, can you please rephrase that"
             else:
                 response = generate_response(st.session_state.messages[-1]["content"])
                 if "unsafe" in get_moderation_result(prompt,"Agent"):
-                    response =  "I am sorry, please rephrase or ask another question"
+                    response =  "I am sorry, I enocuntered an issue and cannot answer this question"
             st.write(response)
 
     message = {"role": "assistant", "content": response}
