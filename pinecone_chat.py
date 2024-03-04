@@ -89,6 +89,9 @@ embeddings = HuggingFaceBgeEmbeddings(model_name=embedding_model_name,
                                       encode_kwargs=encode_kwargs
                                      )
 
+# Load the reranking model
+colbert = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
+
 # App title
 st.set_page_config(page_title="ChatAssist", layout="wide")
 
