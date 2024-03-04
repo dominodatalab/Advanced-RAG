@@ -9,6 +9,7 @@ import subprocess
 
 from sidebar import build_sidebar
 from langchain.embeddings import HuggingFaceBgeEmbeddings
+from langchain_experimental.data_anonymizer import PresidioReversibleAnonymizer
 from domino_data.vectordb import DominoPineconeConfiguration
 from langchain.chains import ConversationChain
 from langchain_openai import ChatOpenAI
@@ -16,6 +17,39 @@ from langchain_openai import ChatOpenAI
 from langchain.schema import HumanMessage, SystemMessage
 from langchain import PromptTemplate
 from langchain.memory import ConversationSummaryMemory
+
+command = "sudo python -m spacy download en_core_web_lg"
+process = subprocess.run(command, shell=True, check=True)
+
+llama_guard_api_url = "https://se-demo.domino.tech:443/models/65e3eb9fd69e0f578609eaf8/latest/model"
+llama_guard_api_key = "Gy76T7FJvKn7QFMF4m1PjapUVtCrezCjJjrAUdslUICcDNxuFlORtgQhdxedLSxt"
+
+
+anonymizer = PresidioReversibleAnonymizer(
+    add_default_faker_operators=False,
+    analyzed_fields=["LOCATION","PHONE_NUMBER","US_SSN", "IBAN_CODE", "CREDIT_CARD", "CRYPTO", "IP_ADDRESS",
+                    "MEDICAL_LICENSE", "URL", "US_BANK_NUMBER", "US_DRIVER_LICENSE", "US_ITIN", "US_PASSPORT"]
+)
+
+
+def anonymize(input_text):
+    if input_text:
+        return anonymizer.anonymize(input_text)
+
+    
+def get_moderation_result(query,role="Agent"):
+ 
+    response = requests.post(llama_guard_api_url,
+        auth=(
+            llama_guard_api_key,
+            llama_guard_api_key
+        ),
+        json={
+            "data": {"query": query, "role": role}
+        }
+    )
+    return response.json()['result']
+
 
 # Number of texts to match (may be less if no suitable match)
 NUM_TEXT_MATCHES = 3
@@ -113,6 +147,8 @@ def build_system_prompt(user_input):
     urls = set([relevant_docs["matches"][i]["metadata"]["source"] for i in range(actual_num_matches)])
     contexts = [relevant_docs["matches"][i]["metadata"]["text"] for i in range(actual_num_matches)]
     
+    # TODO : pull the prompt template from the Hub
+    
     # Create prompt
     template = """ You are a virtual assistant for Rakuten and your task is to answer questions related to Rakuten which includes general information about Rakuten.
 
@@ -153,7 +189,11 @@ def queryOpenAIModel(user_input):
 
 
 # Function for generating LLM response
-def generate_response(prompt):
+def generate_response(prompt, role="Agent"):
+    
+    if "unsafe" in get_moderation_result(prompt,role):
+        return "I am sorry, please rephrase or ask another question"
+    prompt = anonymize(prompt)
     response_generated = queryOpenAIModel(prompt)
     return response_generated
 
@@ -163,6 +203,8 @@ if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             response = generate_response(st.session_state.messages[-1]["content"])
+            if "unsafe" in get_moderation_result(prompt,"Agent"):
+                return "I am sorry, please rephrase or ask another question"
             st.write(response)
 
     message = {"role": "assistant", "content": response}
