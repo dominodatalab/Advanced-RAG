@@ -9,7 +9,7 @@ import subprocess
 
 from langchain.embeddings import HuggingFaceBgeEmbeddings
 from langchain_experimental.data_anonymizer import PresidioReversibleAnonymizer
-from langchain.chains import ConversationChain
+from langchain.chains import ConversationChain, HypotheticalDocumentEmbedder, LLMChain
 from langchain_openai import ChatOpenAI
 from langchain_community.chat_models import ChatMlflow
 from langchain.schema import HumanMessage, SystemMessage
@@ -88,6 +88,18 @@ embeddings = HuggingFaceBgeEmbeddings(model_name=embedding_model_name,
                                       model_kwargs=model_kwargs,
                                       encode_kwargs=encode_kwargs
                                      )
+# Setup HyDE
+
+hyde_prompt_template = """You are a virtual assistant for Rakuten and your task is to answer questions related to Rakuten which includes general information about Rakuten
+"Please answer the user's question below \n 
+Question: {question}
+Answer:"""
+hyde_prompt = PromptTemplate(input_variables=["question"], template=hyde_prompt_template)
+hyde_llm_chain = LLMChain(llm=chat, prompt=hyde_prompt)
+
+hyde_embeddings = HypotheticalDocumentEmbedder(
+    llm_chain=hyde_llm_chain, base_embeddings=embeddings
+)
 
 # Load the reranking model
 colbert = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
@@ -134,9 +146,12 @@ if prompt := st.chat_input("Chat with ChatAssist"):
 
 
 # Get relevant docs through vector DB
-def get_relevant_docs(user_input, num_matches=NUM_TEXT_MATCHES):
+def get_relevant_docs(user_input, num_matches=NUM_TEXT_MATCHES, use_hyde=True):
    
-    embedded_query = embeddings.embed_query(user_input)
+    if use_hyde:
+        embedded_query = hyde_embeddings.embed_query(user_input)
+    else:
+        embedded_query = embeddings.embed_query(user_input)
     
     relevant_docs = index.query(
         vector=embedded_query,
@@ -152,7 +167,7 @@ def get_relevant_docs(user_input, num_matches=NUM_TEXT_MATCHES):
     return relevant_docs
 
 
-def build_system_prompt(user_input, rerank=True):
+def build_system_prompt(user_input, rerank=True, use_hyde=True):
     
     relevant_docs = get_relevant_docs(user_input)
     
@@ -191,7 +206,7 @@ def build_system_prompt(user_input, rerank=True):
     return system_prompt
 
 # Query the Open AI Model
-def queryOpenAIModel(user_input):
+def queryOpenAIModel(user_input, use_hyde=True):
 
     system_prompt = build_system_prompt(user_input)            
     messages = [
