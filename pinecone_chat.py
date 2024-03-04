@@ -189,11 +189,10 @@ def queryOpenAIModel(user_input):
 
 
 # Function for generating LLM response
-def generate_response(prompt, role="Agent"):
+def generate_response(prompt, anon=True):
     
-    if "unsafe" in get_moderation_result(prompt,role):
-        return "I am sorry, please rephrase or ask another question"
-    prompt = anonymize(prompt)
+    if anon:
+        prompt = anonymize(prompt)
     response_generated = queryOpenAIModel(prompt)
     return response_generated
 
@@ -202,9 +201,12 @@ def generate_response(prompt, role="Agent"):
 if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
-            response = generate_response(st.session_state.messages[-1]["content"])
-            if "unsafe" in get_moderation_result(prompt,"Agent"):
-                return "I am sorry, please rephrase or ask another question"
+            if "unsafe" in get_moderation_result(prompt,"User"):
+                response =  "I am sorry, please rephrase or ask another question"
+            else:
+                response = generate_response(st.session_state.messages[-1]["content"])
+                if "unsafe" in get_moderation_result(prompt,"Agent"):
+                    response =  "I am sorry, please rephrase or ask another question"
             st.write(response)
 
     message = {"role": "assistant", "content": response}
