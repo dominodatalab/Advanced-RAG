@@ -161,7 +161,7 @@ def build_system_prompt(user_input, rerank=True):
     contexts = [relevant_docs["matches"][i]["metadata"]["text"] for i in range(actual_num_matches)]
     
     if rerank and actual_num_matches >= NUM_RERANKING_MATCHES:
-        docs = colbert.rerank(query=user_question, documents=contexts, k=NUM_RERANKING_MATCHES)
+        docs = colbert.rerank(query=user_input, documents=contexts, k=NUM_RERANKING_MATCHES)
         result_indices = [docs[i]["result_index"] for i in range(NUM_RERANKING_MATCHES)]
         contexts = [contexts[index] for index in result_indices]
         urls = [list(urls)[index] for index in result_indices]
