@@ -13,6 +13,7 @@ from langchain_experimental.data_anonymizer import PresidioReversibleAnonymizer
 from domino_data.vectordb import DominoPineconeConfiguration
 from langchain.chains import ConversationChain
 from langchain_openai import ChatOpenAI
+from langchain_community.chat_models import ChatMlflow
 
 from langchain.schema import HumanMessage, SystemMessage
 from langchain import PromptTemplate
@@ -98,9 +99,13 @@ if "messages" not in st.session_state.keys():
 
 # Initialize or re-nitialize conversation chain
 if "conversation" not in st.session_state.keys() or len(st.session_state.messages) <= 1:
-    chat = ChatOpenAI(temperature=0, 
-                        model='gpt-3.5-turbo',
-                        openai_api_key=os.environ.get("OPENAI_API_KEY"))
+    chat = ChatMlflow(
+        target_uri=os.environ["DOMINO_MLFLOW_DEPLOYMENTS"],
+        endpoint="chat-gpt35turbo-sm",
+    )
+#     chat = ChatOpenAI(temperature=0, 
+#                         model='gpt-3.5-turbo',
+#                         openai_api_key=os.environ.get("OPENAI_API_KEY"))
     
     st.session_state.conversation = ConversationChain(
         llm=chat,
