@@ -7,17 +7,18 @@ import pandas as pd
 import pinecone
 import subprocess
 
-from sidebar import build_sidebar
 from langchain.embeddings import HuggingFaceBgeEmbeddings
 from langchain_experimental.data_anonymizer import PresidioReversibleAnonymizer
-from domino_data.vectordb import DominoPineconeConfiguration
 from langchain.chains import ConversationChain
 from langchain_openai import ChatOpenAI
 from langchain_community.chat_models import ChatMlflow
-
 from langchain.schema import HumanMessage, SystemMessage
 from langchain import PromptTemplate
 from langchain.memory import ConversationSummaryMemory
+
+from domino_data.vectordb import DominoPineconeConfiguration
+from ragatouille import RAGPretrainedModel
+from sidebar import build_sidebar
 
 command = "sudo python -m spacy download en_core_web_lg"
 process = subprocess.run(command, shell=True, check=True)
@@ -54,7 +55,10 @@ def get_moderation_result(query,role="Agent"):
 
 
 # Number of texts to match (may be less if no suitable match)
-NUM_TEXT_MATCHES = 3
+NUM_TEXT_MATCHES = 5
+
+# Number of texts to return from reranking
+NUM_RERANKING_MATCHES = 3
 
 # Similarity threshold such that queried text with a lower will be discarded 
 # Range [0, 1], larger = more similar for cosine similarity
@@ -127,13 +131,13 @@ if prompt := st.chat_input("Chat with ChatAssist"):
 
 
 # Get relevant docs through vector DB
-def get_relevant_docs(user_input):
+def get_relevant_docs(user_input, num_matches=NUM_TEXT_MATCHES):
    
     embedded_query = embeddings.embed_query(user_input)
     
     relevant_docs = index.query(
         vector=embedded_query,
-        top_k=NUM_TEXT_MATCHES,
+        top_k=num_matches,
         include_values=True,
         include_metadata=True
     )
@@ -145,13 +149,19 @@ def get_relevant_docs(user_input):
     return relevant_docs
 
 
-def build_system_prompt(user_input):
+def build_system_prompt(user_input, rerank=True):
     
     relevant_docs = get_relevant_docs(user_input)
     
     actual_num_matches = len(relevant_docs["matches"])
     urls = set([relevant_docs["matches"][i]["metadata"]["source"] for i in range(actual_num_matches)])
     contexts = [relevant_docs["matches"][i]["metadata"]["text"] for i in range(actual_num_matches)]
+    
+    if rerank and actual_num_matches >= NUM_RERANKING_MATCHES:
+        docs = colbert.rerank(query=user_question, documents=contexts, k=NUM_RERANKING_MATCHES)
+        result_indices = [docs[i]["result_index"] for i in range(NUM_RERANKING_MATCHES)]
+        contexts = [contexts[index] for index in result_indices]
+        urls = [list(urls)[index] for index in result_indices]
     
     # TODO : pull the prompt template from the Hub
     
