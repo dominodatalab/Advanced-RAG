@@ -10,7 +10,6 @@ import subprocess
 from langchain.embeddings import HuggingFaceBgeEmbeddings
 from langchain_experimental.data_anonymizer import PresidioReversibleAnonymizer
 from langchain.chains import ConversationChain, HypotheticalDocumentEmbedder, LLMChain
-from langchain_openai import ChatOpenAI
 from langchain_community.chat_models import ChatMlflow
 from langchain.schema import HumanMessage, SystemMessage
 from langchain import PromptTemplate
@@ -95,6 +94,10 @@ hyde_prompt_template = """You are a virtual assistant for Rakuten and your task 
 Question: {question}
 Answer:"""
 hyde_prompt = PromptTemplate(input_variables=["question"], template=hyde_prompt_template)
+chat = ChatMlflow(
+    target_uri=os.environ["DOMINO_MLFLOW_DEPLOYMENTS"],
+    endpoint="chat-gpt35turbo-sm",
+)
 hyde_llm_chain = LLMChain(llm=chat, prompt=hyde_prompt)
 
 hyde_embeddings = HypotheticalDocumentEmbedder(
@@ -123,9 +126,6 @@ if "conversation" not in st.session_state.keys() or len(st.session_state.message
         target_uri=os.environ["DOMINO_MLFLOW_DEPLOYMENTS"],
         endpoint="chat-gpt35turbo-sm",
     )
-#     chat = ChatOpenAI(temperature=0, 
-#                         model='gpt-3.5-turbo',
-#                         openai_api_key=os.environ.get("OPENAI_API_KEY"))
     
     st.session_state.conversation = ConversationChain(
         llm=chat,
