@@ -14,6 +14,7 @@ from langchain_community.chat_models import ChatMlflow
 from langchain.schema import HumanMessage, SystemMessage
 from langchain import PromptTemplate
 from langchain.memory import ConversationSummaryMemory
+from langchain import hub
 
 from domino_data.vectordb import DominoPineconeConfiguration
 from ragatouille import RAGPretrainedModel
@@ -182,25 +183,28 @@ def build_system_prompt(user_input, rerank=True, use_hyde=True):
         urls = [list(urls)[index] for index in result_indices]
     
     # TODO : pull the prompt template from the Hub
+    prompt_template = hub.pull("subirmansukhani/rakuten-qa-rag")
+    # template = obj.messages[0].prompt.template
     
     # Create prompt
-    template = """ You are a virtual assistant for Rakuten and your task is to answer questions related to Rakuten which includes general information about Rakuten.
+#     template = """ You are a virtual assistant for Rakuten and your task is to answer questions related to Rakuten which includes general information about Rakuten.
 
-                Respond in the style of a polite helpful assistant and do not allude that you have looked up the context.
+#                 Respond in the style of a polite helpful assistant and do not allude that you have looked up the context.
 
-                Do not hallucinate. If you don't find an answer, you can point user to the official website here: https://www.rakuten.com/help . 
+#                 Do not hallucinate. If you don't find an answer, you can point user to the official website here: https://www.rakuten.com/help . 
 
-                In your response, include the following url links at the end of your response {url_links} and any other relevant URL links that you refered.
+#                 In your response, include the following url links at the end of your response {url_links} and any other relevant URL links that you refered.
 
-                Also, at the end of your response, ask if your response was helpful". 
+#                 Also, at the end of your response, ask if your response was helpful". 
 
-                Here is some relevant context: {context}"""
+#                 Here is some relevant context: {context}"""
  
-    prompt_template = PromptTemplate(
-        input_variables=["url_links", "context"],
-        template=template
-    )
+#     prompt_template = PromptTemplate(
+#         input_variables=["url_links", "context"],
+#         template=template
+#     )
     
+#     system_prompt = prompt_template.format( url_links=urls, context=contexts)
     system_prompt = prompt_template.format( url_links=urls, context=contexts)
  
     return system_prompt
