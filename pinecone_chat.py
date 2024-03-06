@@ -209,6 +209,7 @@ def generate_response(prompt, anon=True):
     
     if anon:
         prompt = anonymize(prompt)
+    print(prompt)
     response_generated = queryOpenAIModel(prompt)
     return response_generated
 
