@@ -180,31 +180,9 @@ def build_system_prompt(user_input, rerank=True, use_hyde=True):
         docs = colbert.rerank(query=user_input, documents=contexts, k=NUM_RERANKING_MATCHES)
         result_indices = [docs[i]["result_index"] for i in range(NUM_RERANKING_MATCHES)]
         contexts = [contexts[index] for index in result_indices]
-        urls = [list(urls)[index] for index in result_indices]
-    
-    # TODO : pull the prompt template from the Hub
+        urls = [list(urls)[index] for index in result_indices]  
+
     prompt_template = hub.pull("subirmansukhani/rakuten-qa-rag")
-    # template = obj.messages[0].prompt.template
-    
-    # Create prompt
-#     template = """ You are a virtual assistant for Rakuten and your task is to answer questions related to Rakuten which includes general information about Rakuten.
-
-#                 Respond in the style of a polite helpful assistant and do not allude that you have looked up the context.
-
-#                 Do not hallucinate. If you don't find an answer, you can point user to the official website here: https://www.rakuten.com/help . 
-
-#                 In your response, include the following url links at the end of your response {url_links} and any other relevant URL links that you refered.
-
-#                 Also, at the end of your response, ask if your response was helpful". 
-
-#                 Here is some relevant context: {context}"""
- 
-#     prompt_template = PromptTemplate(
-#         input_variables=["url_links", "context"],
-#         template=template
-#     )
-    
-#     system_prompt = prompt_template.format( url_links=urls, context=contexts)
     system_prompt = prompt_template.format( url_links=urls, context=contexts)
  
     return system_prompt
