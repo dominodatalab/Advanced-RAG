@@ -7,13 +7,15 @@ import pandas as pd
 import pinecone
 import subprocess
 
-# from langchain.embeddings import HuggingFaceBgeEmbeddings
+
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_experimental.data_anonymizer import PresidioReversibleAnonymizer
 from langchain.chains import ConversationChain, HypotheticalDocumentEmbedder, LLMChain
 from langchain_community.chat_models import ChatMlflow
 from langchain.schema import HumanMessage, SystemMessage
-from langchain import PromptTemplate
+# from langchain import PromptTemplate
+from langchain.prompts import PromptTemplate
+langchain.prompts.PromptTemplate 
 from langchain.memory import ConversationSummaryMemory
 from langchain import hub
 
