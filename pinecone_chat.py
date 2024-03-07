@@ -15,7 +15,6 @@ from langchain_community.chat_models import ChatMlflow
 from langchain.schema import HumanMessage, SystemMessage
 # from langchain import PromptTemplate
 from langchain.prompts import PromptTemplate
-langchain.prompts.PromptTemplate 
 from langchain.memory import ConversationSummaryMemory
 from langchain import hub
 
