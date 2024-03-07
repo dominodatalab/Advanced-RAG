@@ -24,54 +24,54 @@ if 'process_complete' not in st.session_state:
     
     command = "sudo python -m spacy download en_core_web_lg"
     process = subprocess.run(command, shell=True, check=True)
-    
-   
-    # Initialize Pinecone index
-    datasource_name = "Rakuten"
-    conf = DominoPineconeConfiguration(datasource=datasource_name)
-    api_key = os.environ.get("DOMINO_VECTOR_DB_METADATA", datasource_name)
-
-    pinecone.init(
-        api_key=api_key,
-        environment="domino",
-        openapi_config=conf
-    )
-    
-    index = pinecone.Index("rakuten")
-    
-    
-    # Create embeddings to embed queries
-
-    model_kwargs = {'device': 'cpu'}
-    encode_kwargs = {'normalize_embeddings': True}
-    embedding_model_name = "BAAI/bge-small-en"
-    os.environ['SENTENCE_TRANSFORMERS_HOME'] = './model_cache/'
-    embeddings = HuggingFaceBgeEmbeddings(model_name=embedding_model_name,
-                                          model_kwargs=model_kwargs,
-                                          encode_kwargs=encode_kwargs
-                                         )
-    chat = ChatMlflow(
-        target_uri=os.environ["DOMINO_MLFLOW_DEPLOYMENTS"],
-        endpoint="chat-gpt35turbo-sm",
-    )
-    
-    # Setup HyDE
-
-    hyde_prompt_template = """You are a virtual assistant for Rakuten and your task is to answer questions related to Rakuten which includes general information about Rakuten
-    "Please answer the user's question below \n 
-    Question: {question}
-    Answer:"""
-    hyde_prompt = PromptTemplate(input_variables=["question"], template=hyde_prompt_template)
-
-    hyde_llm_chain = LLMChain(llm=chat, prompt=hyde_prompt)
-
-    hyde_embeddings = HypotheticalDocumentEmbedder(
-        llm_chain=hyde_llm_chain, base_embeddings=embeddings
-    )
-
-    # Load the reranking model
-    colbert = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
     st.session_state.process_complete = True
+
+# Initialize Pinecone index
+datasource_name = "Rakuten"
+conf = DominoPineconeConfiguration(datasource=datasource_name)
+api_key = os.environ.get("DOMINO_VECTOR_DB_METADATA", datasource_name)
+
+pinecone.init(
+    api_key=api_key,
+    environment="domino",
+    openapi_config=conf
+)
+
+index = pinecone.Index("rakuten")
+
+
+# Create embeddings to embed queries
+
+model_kwargs = {'device': 'cpu'}
+encode_kwargs = {'normalize_embeddings': True}
+embedding_model_name = "BAAI/bge-small-en"
+os.environ['SENTENCE_TRANSFORMERS_HOME'] = './model_cache/'
+embeddings = HuggingFaceBgeEmbeddings(model_name=embedding_model_name,
+                                      model_kwargs=model_kwargs,
+                                      encode_kwargs=encode_kwargs
+                                     )
+chat = ChatMlflow(
+    target_uri=os.environ["DOMINO_MLFLOW_DEPLOYMENTS"],
+    endpoint="chat-gpt35turbo-sm",
+)
+
+# Setup HyDE
+
+hyde_prompt_template = """You are a virtual assistant for Rakuten and your task is to answer questions related to Rakuten which includes general information about Rakuten
+"Please answer the user's question below \n 
+Question: {question}
+Answer:"""
+hyde_prompt = PromptTemplate(input_variables=["question"], template=hyde_prompt_template)
+
+hyde_llm_chain = LLMChain(llm=chat, prompt=hyde_prompt)
+
+hyde_embeddings = HypotheticalDocumentEmbedder(
+    llm_chain=hyde_llm_chain, base_embeddings=embeddings
+)
+
+# Load the reranking model
+colbert = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
+
 
 # command = "sudo python -m spacy download en_core_web_lg"
 # process = subprocess.run(command, shell=True, check=True)
