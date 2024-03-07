@@ -224,7 +224,7 @@ if st.session_state.messages[-1]["role"] != "assistant":
                 response = generate_response(st.session_state.messages[-1]["content"])
                 if "unsafe" in get_moderation_result(prompt,"Agent"):
                     response =  "I am sorry, I enocuntered an issue and cannot answer this question"
-            st.write(response)
+            st.mardown(response)
 
     message = {"role": "assistant", "content": response}
     st.session_state.messages.append(message)
