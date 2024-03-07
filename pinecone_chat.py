@@ -20,8 +20,14 @@ from domino_data.vectordb import DominoPineconeConfiguration
 from ragatouille import RAGPretrainedModel
 from sidebar import build_sidebar
 
-command = "sudo python -m spacy download en_core_web_lg"
-process = subprocess.run(command, shell=True, check=True)
+if 'process_complete' not in st.session_state:
+    command = "sudo python -m spacy download en_core_web_lg"
+    process = subprocess.run(command, shell=True, check=True)
+    st.session_state.process_complete = True
+
+# command = "sudo python -m spacy download en_core_web_lg"
+# process = subprocess.run(command, shell=True, check=True)
+
 
 llama_guard_api_url = "https://se-demo.domino.tech:443/models/65e3eb9fd69e0f578609eaf8/latest/model"
 llama_guard_api_key = os.environ.get('llama_guard_api_key')
@@ -209,7 +215,6 @@ def generate_response(prompt, anon=True):
     
     if anon:
         prompt = anonymize(prompt)
-    print(prompt)
     response_generated = queryOpenAIModel(prompt)
     return response_generated
 
