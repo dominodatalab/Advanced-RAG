@@ -21,15 +21,11 @@ from ragatouille import RAGPretrainedModel
 from sidebar import build_sidebar
 
 if 'process_complete' not in st.session_state:
+    
     command = "sudo python -m spacy download en_core_web_lg"
     process = subprocess.run(command, shell=True, check=True)
     
-    anonymizer = PresidioReversibleAnonymizer(
-        add_default_faker_operators=False,
-        analyzed_fields=["LOCATION","PHONE_NUMBER","US_SSN", "IBAN_CODE", "CREDIT_CARD", "CRYPTO", "IP_ADDRESS",
-                        "MEDICAL_LICENSE", "URL", "US_BANK_NUMBER", "US_DRIVER_LICENSE", "US_ITIN", "US_PASSPORT"]
-    )
-    
+   
     # Initialize Pinecone index
     datasource_name = "Rakuten"
     conf = DominoPineconeConfiguration(datasource=datasource_name)
@@ -84,7 +80,11 @@ if 'process_complete' not in st.session_state:
 llama_guard_api_url = "https://se-demo.domino.tech:443/models/65e3eb9fd69e0f578609eaf8/latest/model"
 llama_guard_api_key = os.environ.get('llama_guard_api_key')
 
-
+anonymizer = PresidioReversibleAnonymizer(
+    add_default_faker_operators=False,
+    analyzed_fields=["LOCATION","PHONE_NUMBER","US_SSN", "IBAN_CODE", "CREDIT_CARD", "CRYPTO", "IP_ADDRESS",
+                    "MEDICAL_LICENSE", "URL", "US_BANK_NUMBER", "US_DRIVER_LICENSE", "US_ITIN", "US_PASSPORT"]
+)
 
 def anonymize(input_text):
     if input_text:
