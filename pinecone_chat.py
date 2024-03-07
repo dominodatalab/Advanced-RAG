@@ -58,6 +58,15 @@ if 'process_complete' not in st.session_state:
         target_uri=os.environ["DOMINO_MLFLOW_DEPLOYMENTS"],
         endpoint="chat-gpt35turbo-sm",
     )
+    
+    # Setup HyDE
+
+    hyde_prompt_template = """You are a virtual assistant for Rakuten and your task is to answer questions related to Rakuten which includes general information about Rakuten
+    "Please answer the user's question below \n 
+    Question: {question}
+    Answer:"""
+    hyde_prompt = PromptTemplate(input_variables=["question"], template=hyde_prompt_template)
+
     hyde_llm_chain = LLMChain(llm=chat, prompt=hyde_prompt)
 
     hyde_embeddings = HypotheticalDocumentEmbedder(
@@ -106,15 +115,6 @@ NUM_RERANKING_MATCHES = 3
 # Range [0, 1], larger = more similar for cosine similarity
 SIMILARITY_THRESHOLD = 0.83
 
-
-
-# Setup HyDE
-
-hyde_prompt_template = """You are a virtual assistant for Rakuten and your task is to answer questions related to Rakuten which includes general information about Rakuten
-"Please answer the user's question below \n 
-Question: {question}
-Answer:"""
-hyde_prompt = PromptTemplate(input_variables=["question"], template=hyde_prompt_template)
 
 
 # App title
