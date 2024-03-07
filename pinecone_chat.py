@@ -23,6 +23,49 @@ from sidebar import build_sidebar
 if 'process_complete' not in st.session_state:
     command = "sudo python -m spacy download en_core_web_lg"
     process = subprocess.run(command, shell=True, check=True)
+    
+    anonymizer = PresidioReversibleAnonymizer(
+        add_default_faker_operators=False,
+        analyzed_fields=["LOCATION","PHONE_NUMBER","US_SSN", "IBAN_CODE", "CREDIT_CARD", "CRYPTO", "IP_ADDRESS",
+                        "MEDICAL_LICENSE", "URL", "US_BANK_NUMBER", "US_DRIVER_LICENSE", "US_ITIN", "US_PASSPORT"]
+    )
+    
+    # Initialize Pinecone index
+    datasource_name = "Rakuten"
+    conf = DominoPineconeConfiguration(datasource=datasource_name)
+    api_key = os.environ.get("DOMINO_VECTOR_DB_METADATA", datasource_name)
+
+    pinecone.init(
+        api_key=api_key,
+        environment="domino",
+        openapi_config=conf
+    )
+    
+    index = pinecone.Index("rakuten")
+    
+    
+    # Create embeddings to embed queries
+
+    model_kwargs = {'device': 'cpu'}
+    encode_kwargs = {'normalize_embeddings': True}
+    embedding_model_name = "BAAI/bge-small-en"
+    os.environ['SENTENCE_TRANSFORMERS_HOME'] = './model_cache/'
+    embeddings = HuggingFaceBgeEmbeddings(model_name=embedding_model_name,
+                                          model_kwargs=model_kwargs,
+                                          encode_kwargs=encode_kwargs
+                                         )
+    chat = ChatMlflow(
+        target_uri=os.environ["DOMINO_MLFLOW_DEPLOYMENTS"],
+        endpoint="chat-gpt35turbo-sm",
+    )
+    hyde_llm_chain = LLMChain(llm=chat, prompt=hyde_prompt)
+
+    hyde_embeddings = HypotheticalDocumentEmbedder(
+        llm_chain=hyde_llm_chain, base_embeddings=embeddings
+    )
+
+    # Load the reranking model
+    colbert = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
     st.session_state.process_complete = True
 
 # command = "sudo python -m spacy download en_core_web_lg"
@@ -32,13 +75,6 @@ if 'process_complete' not in st.session_state:
 llama_guard_api_url = "https://se-demo.domino.tech:443/models/65e3eb9fd69e0f578609eaf8/latest/model"
 llama_guard_api_key = os.environ.get('llama_guard_api_key')
 
-
-
-anonymizer = PresidioReversibleAnonymizer(
-    add_default_faker_operators=False,
-    analyzed_fields=["LOCATION","PHONE_NUMBER","US_SSN", "IBAN_CODE", "CREDIT_CARD", "CRYPTO", "IP_ADDRESS",
-                    "MEDICAL_LICENSE", "URL", "US_BANK_NUMBER", "US_DRIVER_LICENSE", "US_ITIN", "US_PASSPORT"]
-)
 
 
 def anonymize(input_text):
@@ -71,29 +107,7 @@ NUM_RERANKING_MATCHES = 3
 SIMILARITY_THRESHOLD = 0.83
 
 
-# Initialize Pinecone index
-datasource_name = "Rakuten"
-conf = DominoPineconeConfiguration(datasource=datasource_name)
-api_key = os.environ.get("DOMINO_VECTOR_DB_METADATA", datasource_name)
 
-pinecone.init(
-    api_key=api_key,
-    environment="domino",
-    openapi_config=conf
-)
-
-index = pinecone.Index("rakuten")
-
-# Create embeddings to embed queries
-
-model_kwargs = {'device': 'cpu'}
-encode_kwargs = {'normalize_embeddings': True}
-embedding_model_name = "BAAI/bge-small-en"
-os.environ['SENTENCE_TRANSFORMERS_HOME'] = './model_cache/'
-embeddings = HuggingFaceBgeEmbeddings(model_name=embedding_model_name,
-                                      model_kwargs=model_kwargs,
-                                      encode_kwargs=encode_kwargs
-                                     )
 # Setup HyDE
 
 hyde_prompt_template = """You are a virtual assistant for Rakuten and your task is to answer questions related to Rakuten which includes general information about Rakuten
@@ -101,18 +115,7 @@ hyde_prompt_template = """You are a virtual assistant for Rakuten and your task 
 Question: {question}
 Answer:"""
 hyde_prompt = PromptTemplate(input_variables=["question"], template=hyde_prompt_template)
-chat = ChatMlflow(
-    target_uri=os.environ["DOMINO_MLFLOW_DEPLOYMENTS"],
-    endpoint="chat-gpt35turbo-sm",
-)
-hyde_llm_chain = LLMChain(llm=chat, prompt=hyde_prompt)
 
-hyde_embeddings = HypotheticalDocumentEmbedder(
-    llm_chain=hyde_llm_chain, base_embeddings=embeddings
-)
-
-# Load the reranking model
-colbert = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
 
 # App title
 st.set_page_config(page_title="ChatAssist", layout="wide")
