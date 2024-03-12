@@ -75,9 +75,6 @@ hyde_embeddings = HypotheticalDocumentEmbedder(
 colbert = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
 
 
-# command = "sudo python -m spacy download en_core_web_lg"
-# process = subprocess.run(command, shell=True, check=True)
-
 
 llama_guard_api_url = "https://se-demo.domino.tech:443/models/65e3eb9fd69e0f578609eaf8/latest/model"
 llama_guard_api_key = os.environ.get('llama_guard_api_key')
@@ -181,6 +178,7 @@ def get_relevant_docs(user_input, num_matches=NUM_TEXT_MATCHES, use_hyde=True):
 
 def build_system_prompt(user_input, rerank=True, use_hyde=True):
     
+    # Make sure to add error/exception handling to suit your use case. For reference take a look at build_system_prompt in RAG.ipynb
     relevant_docs = get_relevant_docs(user_input)
     
     actual_num_matches = len(relevant_docs["matches"])
