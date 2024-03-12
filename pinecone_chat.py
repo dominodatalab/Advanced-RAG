@@ -231,7 +231,7 @@ if st.session_state.messages[-1]["role"] != "assistant":
             else:
                 response = generate_response(st.session_state.messages[-1]["content"])
                 if "unsafe" in get_moderation_result(prompt,"Agent"):
-                    response =  "I am sorry, I enocuntered an issue and cannot answer this question"
+                    response =  "I am sorry, I encountered an issue and cannot answer this question"
             st.markdown(response)
 
     message = {"role": "assistant", "content": response}
