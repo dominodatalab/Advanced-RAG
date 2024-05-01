@@ -1,2 +1,1 @@
 pinecone-client==2.2.4
-domino_data
