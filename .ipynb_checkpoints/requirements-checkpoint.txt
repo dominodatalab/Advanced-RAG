@@ -4,3 +4,6 @@ SQLAlchemy==2.0.1
 langchain-openai==0.0.5
 langchain-anthropic
 ragatouille
+langchain-experimental==0.0.52
+presidio-analyzer
+presidio-anonymizer
