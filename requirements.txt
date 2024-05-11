@@ -1,1 +1,6 @@
 pinecone-client==2.2.4
+sentence_transformers
+SQLAlchemy==2.0.1
+langchain-openai==0.0.5
+langchain-anthropic
+ragatouille
