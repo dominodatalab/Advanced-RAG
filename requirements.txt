@@ -2,7 +2,7 @@ pinecone-client==2.2.4
 sentence_transformers
 SQLAlchemy==2.0.1
 langchain-anthropic
-langchain-pinecone
+#langchain-pinecone
 langchain==0.1.8
 langchain-openai==0.0.5
 langchain-experimental==0.0.52
