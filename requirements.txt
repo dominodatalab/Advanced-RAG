@@ -1,4 +1,4 @@
-#pinecone-client==2.2.4
+pinecone-client==2.2.4
 #sentence_transformers
 #SQLAlchemy==2.0.1
 #langchain-anthropic
