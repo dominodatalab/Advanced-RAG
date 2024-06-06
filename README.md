@@ -1,4 +1,4 @@
-# R-RAG
+# Advances RAG Demo
 
 Environment
 ```
