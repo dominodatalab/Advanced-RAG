@@ -48,3 +48,17 @@ vscode:
     port: 8888
     requireSubdomain: false
 ```
+
+## Required Project Environment Variables
+
+```
+ANTHROPIC_API_KEY
+APIFY_API_TOKEN	(Optional, only for web scraping)
+HUGGING_FACE_HUB_TOKEN
+LANGCHAIN_HUB_API_KEY
+llama_guard_api_key
+OPENAI_API_KEY
+PINECONE_API_ENV
+PINECONE_API_KEY
+QDRANT_KEY
+```
