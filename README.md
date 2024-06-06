@@ -1,4 +1,4 @@
-# Advances RAG Demo
+# Advanced RAG Demo
 
 Base Environment
 ```
