@@ -1,6 +1,6 @@
 # Advances RAG Demo
 
-Environment
+Base Environment
 ```
 nvcr.io/nvidia/pytorch:23.10-py3
 ```
