@@ -17,7 +17,7 @@ RUN /usr/bin/python -m pip install --user ipykernel && \
 /usr/bin/python -m ipykernel install --user --name test_kernel --display-name 'Advanced RAG Env'
 ```
 
-If running in any ither IDE (VSCode), only need the following docker file:
+If running in any other IDE (VSCode), only need the following docker file:
 
 ```
 # System-level dependency injection runs as root
