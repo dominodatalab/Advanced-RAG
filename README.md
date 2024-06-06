@@ -33,24 +33,6 @@ presidio-analyzer presidio-anonymizer spacy Faker streamlit spacy pinecone-clien
 RUN pip uninstall --yes transformer-engine
 RUN pip uninstall -y apex
 ```
-```
-jupyterlab:
-  title: "JupyterLab"
-  iconUrl: "/assets/images/workspace-logos/jupyterlab.svg"
-  start: ["/opt/domino/bin/jupyterlab-start.sh"]
-  httpProxy:
-    internalPath: "/{{ownerUsername}}/{{projectName}}/{{sessionPathComponent}}/{{runId}}/{{#if pathToOpen}}tree/{{pathToOpen}}{{/if}}"
-    port: 8888
-    rewrite: false
-    requireSubdomain: false
-vscode:
- title: "vscode"
- iconUrl: "/assets/images/workspace-logos/vscode.svg"
- start: [ "/opt/domino/bin/vscode-start.sh" ]
- httpProxy:
-    port: 8888
-    requireSubdomain: false
-```
 (Temporary for Domino 5.11)
 
 If running in JupyterLab, add the following snippet to add the Advanced RAG Env. Add to the environment definition after the validate.sh script:
@@ -86,7 +68,26 @@ presidio-analyzer presidio-anonymizer spacy Faker streamlit spacy pinecone-clien
 RUN pip uninstall --yes transformer-engine
 RUN pip uninstall -y apex
 ```
+IDEs 
 
+```
+jupyterlab:
+  title: "JupyterLab"
+  iconUrl: "/assets/images/workspace-logos/jupyterlab.svg"
+  start: ["/opt/domino/bin/jupyterlab-start.sh"]
+  httpProxy:
+    internalPath: "/{{ownerUsername}}/{{projectName}}/{{sessionPathComponent}}/{{runId}}/{{#if pathToOpen}}tree/{{pathToOpen}}{{/if}}"
+    port: 8888
+    rewrite: false
+    requireSubdomain: false
+vscode:
+ title: "vscode"
+ iconUrl: "/assets/images/workspace-logos/vscode.svg"
+ start: [ "/opt/domino/bin/vscode-start.sh" ]
+ httpProxy:
+    port: 8888
+    requireSubdomain: false
+```
 
 ## Required Project Environment Variables
 
