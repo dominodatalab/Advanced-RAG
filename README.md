@@ -4,6 +4,19 @@ Environment
 ```
 nvcr.io/nvidia/pytorch:23.10-py3
 ```
+If running in JupyterLab, add the following snippet to add the Advanced RAG Env. Add to the environment definition after the validate.sh script:
+
+Once in JupyterLab, be sure to select "Advanced RAG Env" in the Jupyter Notebook.
+
+```
+# Validate the environment
+RUN /opt/domino/bin/validate.sh
+
+USER domino
+RUN /usr/bin/python -m pip install --user ipykernel && \
+/usr/bin/python -m ipykernel install --user --name test_kernel --display-name 'Advanced RAG Env'
+```
+
 ```
 # System-level dependency injection runs as root
 USER root:root
